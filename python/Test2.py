@@ -3,12 +3,10 @@ from tweepy import OAuthHandler
 from tweepy import Stream
 import tweepy
 from pythainlp import word_tokenize
-from firebase import firebase
-
+import pymongo
 import schedule
 import time
-
-name = '@ThaiPBSNews'
+name = '@arm68276728'
 consumer_key = 'ZjqhkszxnNHLiyuGoqg9q9rTV'
 consumer_secret = 'DEjDKOP5wvgrPzeTxAmbvSZehzxGZzFwdkZAyki70noCoEnr3k'
 access_token = '842544748355186688-1xDuL3ityjUEsJYcIEKTD9lK1RovPnZ'
@@ -16,8 +14,14 @@ access_secret = 'NPfabP1b1ohKmhaO6UDyP69XoIZ3AOaqTKbPnxiHe7Oc5'
 auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
 auth.set_access_token(access_token, access_secret)
 api = tweepy.API(auth, wait_on_rate_limit=True)
-url = 'https://event-risk.firebaseio.com/'
-messager = firebase.FirebaseApplication(url)
+
+
+
+#Database 
+monggo = pymongo.MongoClient("mongodb+srv://admin:68276728@projectdisasterrisk.wh8co.gcp.mongodb.net/DATAPROJECT?retryWrites=true&w=majority")
+db = monggo.DATAPROJECT
+col = db["dataDisaster"]
+
 def crawler():
     count = 0
     for status in tweepy.Cursor(api.user_timeline, screen_name=name, tweet_mode="extended").items():
@@ -30,14 +34,23 @@ def crawler():
         disaster = []
         province = []
         noti = ''
+        datanoti = ''
         time = ''
+        timete = ''
+
+        score1 = ''
+        disaster1 = ''
+        province1 = ''
+        score2 = []
+        disaster2 = []
+        province2 = []
+        countduplicate=0 
         countdata = 1
         for i in messages:
             proc = word_tokenize(i, engine='newmm')
 
             score = [s for s in proc if ('บาดเจ็บ' in s) or (
-                'ตาย' in s) or ('เสียชีวิต' in s) or ('สูญหาย' in s) or ('สูญเสีย' in s) or ('เหยื่อ' in s) or ('แขนขาด' in s) or ('ขาขาด' in s) ]
-
+                'ตาย' in s) or ('เสียชีวิต' in s) or ('สูญหาย' in s) or ('สูญเสีย' in s) or ('เหยื่อ' in s) or ('แขนขาด' in s) or ('ขาขาด' in s) or ('อดอยาก' in s) ]
 
             disaster = [s for s in proc if ('พายุ' in s) or ('ไฟไหม้' in s) 
             or ('ไฟป่า' in s) or ('น้ำท่วม' in s) or ('ดินถล่ม' in s) or ('แผ่นดินไหว' in s)
@@ -64,35 +77,229 @@ def crawler():
             if len(score or disaster or province ) != 0:
                 noti = status.full_text
                 time = status.created_at
+                retweet = status.retweet_count
+                like = status.favorite_count
+                score2 = score
                 print(score)
+                disaster2 = disaster
                 print(disaster)
+                province2 = province
                 print(province)
-                if(score and disaster and province or noti == score and disaster and province or noti):
+            if(score and disaster and province or noti == score and disaster and province or noti):
                 	continue;
-                else:
-                	result = messager.put('/Data',countdata,score)
-                	countdata+= 1
+            else:
+                countdata+= 1
                 # break
         if noti != '':
             break
 
         # f.write(f'index:{count} message:{status.full_text}')
         count += 1
+    def lati(la):
+        switcher = {
+            "กรุงเทพมหานคร": 13.7278956,
+            "กทม.": 13.7278956,
+            "กรุงเทพฯ": 13.7278956,
+            "กระบี่": 8.0862997,
+            "กาญจนบุรี": 14.0227797,
+            "กาฬสินธุ์": 16.4314078,
+            "กำแพงเพชร": 16.4827798,
+            "ขอนแก่น": 16.4419355,
+            "จันทบุรี": 12.61134,
+            "ฉะเชิงเทรา": 13.6904194,
+            "ชลบุรี": 13.3611431,
+            "ชัยนาท": 15.1851971,
+            "ชัยภูมิ": 15.8068173,
+            "ชุมพร": 10.4930496,
+            "เชียงราย": 19.9071656,
+            "เชียงใหม่": 18.7877477,
+            "ตรัง": 7.5593851,
+            "ตราด": 12.2427563,
+            "ตาก": 16.8839901,
+            "นครนายก": 14.2069466,
+            "นครปฐม": 13.8199206,
+            "นครพนม": 17.392039,
+            "นครราชสีมา": 14.9798997,
+            "นครศรีธรรมราช": 8.4303975,
+            "นครสวรรค์": 15.6930072,
+            "นนทบุรี": 13.8621125,
+            "นราธิวาส": 6.4254607,
+            "น่าน": 18.7756318,
+            "บุรีรัมย์": 14.9930017,
+            "ปทุมธานี": 14.0208391,
+            "ประจวบคีรีขันธ์": 11.812367,
+            "ปราจีนบุรี": 14.0509704,
+            "ปัตตานี": 6.869484399999999,
+            "พระนครศรีอยุธยา": 14.3532128,
+            "พะเยา": 19.1664789,
+            "พังงา": 8.4407456,
+            "พัทลุง": 7.6166823,
+            "พิจิตร": 16.4429516,
+            "พิษณุโลก": 16.8298048,
+            "เพชรบุรี": 13.1111601,
+            "เพชรบูรณ์": 16.4189807,
+            "แพร่": 18.1445774,
+            "ภูเก็ต": 7.9810496,
+            "มหาสารคาม": 16.1850896,
+            "มุกดาหาร": 16.542443,
+            "แม่ฮ่องสอน": 19.2990643,
+            "ยโสธร": 15.792641,
+            "ยะลา": 6.541147,
+            "ร้อยเอ็ด": 16.0538196,
+            "ระนอง": 9.9528702,
+            "ระยอง": 12.6833115,
+            "ราชบุรี": 13.5282893,
+            "ลพบุรี": 14.7995081,
+            "ลำปาง": 18.2888404,
+            "ลำพูน": 18.5744606,
+            "เลย": 17.4860232,
+            "ศรีสะเกษ": 15.1186009,
+            "สกลนคร": 17.1545995,
+            "สงขลา": 7.1756004,
+            "สตูล": 6.6238158,
+            "สมุทรปราการ": 13.5990961,
+            "สมุทรสงคราม": 13.4098217,
+            "สมุทรสาคร": 13.5475216,
+            "สระแก้ว": 13.824038,
+            "สระบุรี": 14.5289154,
+            "สิงห์บุรี": 14.8936253,
+            "สุโขทัย": 17.0055573,
+            "สุพรรณบุรี": 14.4744892,
+            "สุราษฎร์ธานี": 9.1382389,
+            "สุรินทร์": 14.882905,
+            "หนองคาย": 17.8782803,
+            "หนองบัวลำภู": 17.2218247,
+            "อ่างทอง": 14.5896054,
+            "อำนาจเจริญ": 15.8656783,
+            "อุดรธานี": 17.4138413,
+            "อุตรดิตถ์": 17.6200886,
+            "อุทัยธานี": 15.3835001,
+            "อุบลราชธานี": 15.2286861,
+            "บึงกาฬ": 18.3609104,
 
+        }
+        return switcher.get(la)
+    #หน้าละติจูด 
+    def longti(long):
+        switcher = {
+            "กรุงเทพมหานคร":100.52412349999997,
+            "กระบี่":98.90628349999997,
+            "กาญจนบุรี": 99.53281149999998,
+            "กาฬสินธุ์": 103.5058755,
+            "กำแพงเพชร": 99.52266179999992,
+            "ขอนแก่น": 102.8359921,
+            "จันทบุรี":102.10385459999998,
+            "ฉะเชิงเทรา": 101.07795959999999,
+            "ชลบุรี": 100.98467170000004,
+            "ชัยนาท": 100.12512500000003,
+            "ชัยภูมิ": 102.03150270000003,
+            "ชุมพร": 99.18001989999993,
+            "เชียงราย": 99.83095500000002,
+            "เชียงใหม่": 98.99313110000003,
+            "ตรัง": 99.61100650000003,
+            "ตราด": 102.51747339999997,
+            "ตาก":  99.12584979999997,
+            "นครนายก":  101.21305110000003,
+            "นครปฐม":  100.06216760000007,
+            "นครพนม":  104.76955079999993,
+            "นครราชสีมา":  102.09776929999998,
+            "นครศรีธรรมราช": 99.96312190000003,
+            "นครสวรรค์":  100.12255949999997,
+            "นนทบุรี":  100.51435279999998,
+            "นราธิวาส": 101.82531429999995,
+            "น่าน": 100.77304170000002,
+            "บุรีรัมย์": 103.10291910000001,
+            "ปทุมธานี": 100.52502759999993,
+            "ประจวบคีรีขันธ์": 99.79732709999996,
+            "ปราจีนบุรี":  101.37274389999993,
+            "ปัตตานี":  101.25048259999994,
+            "พระนครศรีอยุธยา": 100.56895989999998,
+            "พะเยา":  99.9019419,
+            "พังงา":  98.51930319999997,
+            "พัทลุง":  100.07402309999998,
+            "พิจิตร":  100.34823289999997,
+            "พิษณุโลก":  100.26149150000003,
+            "เพชรบุรี":  99.93913069999996,
+            "เพชรบูรณ์":  101.15509259999999,
+            "แพร่":  100.14028310000003,
+            "ภูเก็ต":  98.36388239999997,
+            "มหาสารคาม":  103.30264609999995,
+            "มุกดาหาร":  104.72091509999996,
+            "แม่ฮ่องสอน":  97.96562259999996,
+            "ยโสธร":  104.14528270000005,
+            "ยะลา":  101.28039469999999,
+            "ร้อยเอ็ด":  103.65200359999994,
+            "ระนอง":  98.60846409999999,
+            "ระยอง":  101.23742949999996,
+            "ราชบุรี":  99.81342110000003,
+            "ลพบุรี":  100.65337060000002,
+            "ลำปาง":  99.49087399999996,
+            "ลำพูน":  99.0087221,
+            "เลย":  101.72230020000006,
+            "ศรีสะเกษ":  104.32200949999992,
+            "สกลนคร":  104.1348365,
+            "สงขลา":  100.61434699999995,
+            "สตูล":  100.06737440000006,
+            "สมุทรปราการ":  100.59983190000003,
+            "สมุทรสงคราม":  100.00226450000002,
+            "สมุทรสาคร":  100.27439559999993,
+            "สระแก้ว":  102.0645839,
+            "สระบุรี":  100.91014210000003,
+            "สิงห์บุรี":  100.39673140000002,
+            "สุโขทัย":  99.82637120000004,
+            "สุพรรณบุรี":  100.11771279999994,
+            "สุราษฎร์ธานี": 99.32174829999997,
+            "สุรินทร์":  103.49371070000007,
+            "หนองคาย":  102.74126380000007,
+            "หนองบัวลำภู":  102.42603680000002,
+            "อ่างทอง": 100.45505200000002,
+            "อำนาจเจริญ":  104.62577740000006,
+            "อุดรธานี": 102.78723250000007,
+            "อุตรดิตถ์":  100.09929420000003,
+            "อุทัยธานี":  100.02455269999996,
+            "อุบลราชธานี":  104.85642170000006,
+            "บึงกาฬ": 103.64644629999998,
+        }
+        return switcher.get(long)
+    while True:
+        if(datanoti == noti and timete == time):
+                countduplicate+=1;
+        elif(datanoti != noti and timete != time):
+            disaster1 = disaster2[0]
+            score1 = score2[0]
+            province1 = province2[0]
+            latitude = lati(province1)
+            longtitude = longti(province1)
+            col.insert_one({"disaster":disaster1,"province":province1,"score":score1,"longtitude":longtitude,"latitude":latitude,"retweet":retweet,"like":like,"noti":noti,"time":time})
+            print(score1)
+            print(disaster1)
+            print(province1)
+            print(longtitude)
+            print(latitude)
+            print(retweet)
+            print(like)
+            print(noti)
+            print(time) 
+            print(countduplicate)
+            break;
+    # for x in col.find():
+    #     print(x)
+    # return noti, time
     
-    print(noti)
-    print(time) 
-
-    return noti, time
-
+    
 
 
 crawler()
 
-# schedule.every(5).seconds.do(crawler)
+schedule.every(10).seconds.do(crawler)
 
-# i = 0
-# while True:
-#     schedule.run_pending()
-#     time.sleep(1)
-#     i = i+1
+i = 0
+while True:
+    schedule.run_pending()
+    time.sleep(1)
+    i = i+1
+
+
+
+
+

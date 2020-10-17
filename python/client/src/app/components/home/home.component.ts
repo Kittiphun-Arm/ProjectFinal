@@ -12,7 +12,7 @@ export class HomeComponent implements OnInit {
 
   ngOnInit(): void {
   }
-  login(){
+  map(){
     this.router.navigate(['/map']);
   }
 }

@@ -1,11 +1,64 @@
-<table>
-<tr>
-    <th>Name</th>
-    <th>Sad</th>
-</tr>
-<tr *ngFor="let showdata of showdata">
-    <td>{{showdata.province}}</td>
-    <td>{{showdata.disaster}}</td>
-</tr>
-</table>
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <div class="title">
+        <h2>Disaster</h2>
+      </div>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+        aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav mr-auto">
+            <li class="nav-item active">
+                <button class="btn btn-link my-2 my-sm-0"  type="submit"(click)='home()'>Home</button>
+            </li>
+            <li class="nav-item">
+                <button class="btn btn-link my-2 my-sm-0"  type="submit"(click)='mappa()'>แผนที่แสดงภัยพิบัติ</button>
+            </li>
+            <li class="nav-item">
+                <button class="btn btn-link my-2 my-sm-0"  type="submit"(click)='showdataa()'>ข้อมูลภัยพิบัติ</button>
+            </li>
+        </ul>
+    </div>
+</nav>
+<section class="main">
+    <br>
+    div class="cover">
+<div class="container-fluid" style="margin-top:30px">
+    <div class="row">
+    <div class="col-md-12">
+    <div class="title">
+        <h1>ข้อมูลภัยพิบัติทางธรรมชาติ</h1>
+      </div>
+      <br>
+      
+<div class="table-responsive-md">  
+<table class="table table-dark">
+    
+        <thead class="thead-dark">
+        <tr>
+            <th class="se">จังหวัด</th>
+            <th class="se">ภัยพิบัติ</th>
+            <th class="se">ข้อมูล</th>
+            <th class="se">วัน-เวลา</th>
+            <th class="se">ระดับความรุนแรง</th>
+            <th class="se">ติดตามข่าวสาร</th>
+        </tr>
+        </thead>
+        
+    <tbody class="text-white">
+        <tr *ngFor="let showdata of showdata">
+            <td>{{showdata.province}}</td>
+            <td>{{showdata.disaster}}</td>
+            <td>{{showdata.noti}}</td>
+            <td>{{showdata.time}}</td>
+            <td>{{showdata.severity}}</td>
+            <td><a href="{{showdata.link}}">Link</a></td>
+        </tr>
+</tbody>
 
+</table>
+</div>
+</div>
+</div>
+</div>
+</section>

@@ -1,11 +1,41 @@
-
-<agm-map  [latitude]="lat" [longitude]="lng">
-    <agm-marker [latitude]="lat" [longitude]="lng">
-
-        <agm-info-window>
-            <strong>InfoWindow content</strong>
-          </agm-info-window>
-          
-    </agm-marker>
-</agm-map>
-  
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <div class="title">
+        <h2>Disaster</h2>
+      </div>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+        aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav mr-auto">
+            <li class="nav-item active">
+                <button class="btn btn-link my-2 my-sm-0"  type="submit"(click)='home()'>Home</button>
+            </li>
+            <li class="nav-item">
+                <button class="btn btn-link my-2 my-sm-0"  type="submit"(click)='mappa()'>แผนที่แสดงภัยพิบัติ</button>
+            </li>
+            <li class="nav-item">
+                <button class="btn btn-link my-2 my-sm-0"  type="submit"(click)='showdataa()'>ข้อมูลภัยพิบัติ</button>
+            </li>
+        </ul>
+    </div>
+</nav>
+<section class="main">
+    <br>
+    <div class="card">
+        
+    <agm-map [latitude]="lat" [longitude]="lng" > 
+        <tr *ngFor="let map of map">
+            <agm-marker [latitude]="map.latitude" [longitude]="map.longtitude">
+                <agm-info-window >
+                    <td>{{map.severity}}</td><br><br>
+                    <td>{{map.noti}}</td><br>
+                    <td>{{map.time}}</td><br>
+                    <a href="{{map.link}}">ติดตามข่าวสาร</a>
+                </agm-info-window>
+                  
+            </agm-marker>
+        </tr>
+        </agm-map>
+    </div>
+</section>
