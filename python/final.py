@@ -7,11 +7,11 @@ import pymongo
 import schedule
 import time
 import random
-name = '@arm68276728'
-consumer_key = '9deDZNicYdFSPQWzqi5jUuQoZ'
-consumer_secret = 'hdfHZAsQtiIHhrTAbIKAhVvOf3tzR6yrL8J3lBK5Ac2BYaeZg2'
-access_token = '842544748355186688-ZNsVP4EWR85hoHGktSRunMZEh3xNd9l'
-access_secret = 'uDVHXQnLlQcFYN1m6EwwyzRuAvbRAUh9ccmqPftLADTBN'
+name = '' #ชื่อ Account Twitter
+consumer_key = '' #คีย์ Twiter Consumer API keys
+consumer_secret = '' #คีย์ Twiter Consumer API keys
+access_token = ''#คีย์ Twiter Access token & access token secret
+access_secret = ''#คีย์ Twiter  Access token & access token secret
 auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
 auth.set_access_token(access_token, access_secret)
 api = tweepy.API(auth, wait_on_rate_limit=True)
@@ -19,9 +19,9 @@ api = tweepy.API(auth, wait_on_rate_limit=True)
 
 
 #Database 
-monggo = pymongo.MongoClient("mongodb+srv://admin:68276728@projectdisasterrisk.wh8co.gcp.mongodb.net/DATAPROJECT?retryWrites=true&w=majority")
-db = monggo.DATAPROJECT
-col = db["dataDisaster"]
+monggo = pymongo.MongoClient("") #คีย์ MongoDB
+db = monggo.DATAPROJECT #ชื่อ คลัสเตอร์
+col = db["dataDisaster"] # ชื่อ collection
 colsave = db["savedataDisaster"]
 countla = random.uniform(0.015,0.027)
 countlong = random.uniform(0.015,0.027)
